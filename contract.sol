@@ -56,14 +56,14 @@ contract TokenReward {
        return true;
     }
     
-    function whiteListMember(address __member) public OnlyAdminOrOwner returns(bool) {
+    function whiteListMember(address __member) public view OnlyAdminOrOwner returns(bool) {
        Member memory  memberStruct = members[__member];
        memberStruct.isWhitelisted = true;
        return true;
     }
     
     
-    function blackListMember(address __member) public OnlyAdminOrOwner returns(bool) {
+    function blackListMember(address __member) public view OnlyAdminOrOwner returns(bool) {
        Member memory  memberStruct = members[__member];
        memberStruct.isWhitelisted = false;
        return true;
