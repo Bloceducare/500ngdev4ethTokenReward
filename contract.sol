@@ -2,10 +2,10 @@ pragma solidity >=0.5.0 < 0.6.0;
 contract TokenReward {
     
     struct Member {
-        uint8 rating;
         string name;
         bool isWhitelisted;
         uint8 accumulatedPoints;
+        uint8 rating;
     }
     
     address owner;
@@ -15,6 +15,7 @@ contract TokenReward {
     mapping(address => uint ) public balances;
     
     event NewMember(string _name);
+    event Whitelisted(address indexed _member, string _name);
     event Blacklisted(address indexed _member, string _name);
     event NewReward(address indexed _member, uint reward);
     event NewRating(address indexed _ratedBy, address indexed _memberRated, uint rating);
@@ -57,15 +58,19 @@ contract TokenReward {
     }
     
     function whiteListMember(address __member) public OnlyAdminOrOwner returns(bool) {
-       Member memory  memberStruct = members[__member];
+       Member storage memberStruct = members[__member];
        memberStruct.isWhitelisted = true;
+       
+       emit Whitelisted(__member, memberStruct.name);
        return true;
     }
     
     
     function blackListMember(address __member) public OnlyAdminOrOwner returns(bool) {
-       Member memory  memberStruct = members[__member];
+       Member storage  memberStruct = members[__member];
        memberStruct.isWhitelisted = false;
+       
+       emit Blacklisted(__member, memberStruct.name);
        return true;
     }
     
@@ -76,7 +81,7 @@ contract TokenReward {
     }
     
     function rateMember(address __membertorate) public IsWhitelisted(__membertorate) returns(bool) {
-        Member memory __memberStruct = members[__membertorate];
+        Member storage __memberStruct = members[__membertorate];
         uint8 ratingPoint;
         require(admins[msg.sender] || isWhitelisted(msg.sender), "You're not qualified to rate any member");
         if (admins[msg.sender]) {
@@ -117,7 +122,4 @@ contract TokenReward {
         );
     }
 }
-
-
-
 
