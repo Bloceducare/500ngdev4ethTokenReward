@@ -63,6 +63,7 @@ contract TokenReward {
        return true;
     }
     
+
    //This function blcacklist a member and can be called only by admins and the owner
     function blackListMember(address __member) public view OnlyAdminOrOwner returns(bool) {
        Member memory  memberStruct = members[__member];
