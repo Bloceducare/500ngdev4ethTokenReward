@@ -47,36 +47,30 @@ contract TokenReward {
     
     
     function AddMember(address __member, string memory __memberName) public OnlyAdminOrOwner returns(bool) {
-       Member memory __memberStruct;
-       __memberStruct.name = __memberName;
-       __memberStruct.isWhitelisted = true;
-       members[__member] = __memberStruct;
-       
+      members[__member].name = __memberName;
+      members[__member].isWhitelisted = true;
+              
        emit NewMember(__memberName);
        return true;
     }
     
     function whiteListMember(address __member) public OnlyAdminOrOwner returns(bool) {
-       Member memory  memberStruct = members[__member];
-       memberStruct.isWhitelisted = true;
+       members[__member].isWhitelisted = true;
        return true;
     }
     
     
     function blackListMember(address __member) public OnlyAdminOrOwner returns(bool) {
-       Member memory  memberStruct = members[__member];
-       memberStruct.isWhitelisted = false;
+       members[__member].isWhitelisted = false;
        return true;
     }
     
     
     function isWhitelisted(address __member) view internal returns(bool) {
-        Member memory  memberStruct = members[__member];
-        return memberStruct.isWhitelisted;
+       return  members[__member].isWhitelisted;
     }
     
     function rateMember(address __membertorate) public IsWhitelisted(__membertorate) returns(bool) {
-        Member memory __memberStruct = members[__membertorate];
         uint8 ratingPoint;
         require(admins[msg.sender] || isWhitelisted(msg.sender), "You're not qualified to rate any member");
         if (admins[msg.sender]) {
@@ -87,11 +81,11 @@ contract TokenReward {
         } else {
             ratingPoint = 1;
         }
-        __memberStruct.accumulatedPoints =  __memberStruct.accumulatedPoints + ratingPoint;
+         members[__membertorate].accumulatedPoints =   members[__membertorate].accumulatedPoints + ratingPoint;
         
-         (uint8 __memberPoint, uint8 __starRating) = calculateReward(__memberStruct.accumulatedPoints, __memberStruct.rating);
-        __memberStruct.accumulatedPoints = __memberPoint;
-        __memberStruct.rating = __starRating;
+         (uint8 __memberPoint, uint8 __starRating) = calculateReward( members[__membertorate].accumulatedPoints,  members[__membertorate].rating);
+         members[__membertorate].accumulatedPoints = __memberPoint;
+         members[__membertorate].rating = __starRating;
         
         emit NewRating(msg.sender, __membertorate, ratingPoint);
         return true;
