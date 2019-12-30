@@ -67,7 +67,7 @@ contract TokenReward {
     }
     
 
-   //This function blcacklist a member and can be called only by admins and the owner
+   //This function blacklist a member and can be called only by admins and the owner
     function blackListMember(address __member) public view OnlyAdminOrOwner returns(bool) {
        Member storage  memberStruct = members[__member];
        memberStruct.isWhitelisted = false;
@@ -81,8 +81,8 @@ contract TokenReward {
         Member memory  memberStruct = members[__member];
         return memberStruct.isWhitelisted;
     }
-    //This function rate a member and can be called by admins,owners,and whitelisted members
-    function rateMember(address __membertorate) public OnlyAdminOrOwner IsWhitelisted(__membertorate) returns(bool) {
+    //This function rate a member and can be called by whitelisted members
+    function rateMember(address __membertorate) public IsWhitelisted(__membertorate) returns(bool) {
         Member storage __memberStruct = members[__membertorate];
         uint8 ratingPoint;
         require(admins[msg.sender] || isWhitelisted(msg.sender), "You're not qualified to rate any member");
