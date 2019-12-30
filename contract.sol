@@ -1,6 +1,5 @@
 pragma solidity >=0.5.0 < 0.6.0;
 contract TokenReward {
-    
     struct Member {
         uint8 rating;
         string name;
@@ -30,8 +29,7 @@ contract TokenReward {
     }
     
     modifier IsWhitelisted(address __member) {
-        Member memory  memberStruct = members[__member];
-        require(memberStruct.isWhitelisted == true, "This address is not whitelisted");
+        require(members[__member].isWhitelisted == true, "This address is not whitelisted");
         _;
     }
     
@@ -49,34 +47,36 @@ contract TokenReward {
     function AddMember(address __member, string memory __memberName) public OnlyAdminOrOwner returns(bool) {
       members[__member].name = __memberName;
       members[__member].isWhitelisted = true;
-              
+       
+       
        emit NewMember(__memberName);
        return true;
     }
     
     function whiteListMember(address __member) public OnlyAdminOrOwner returns(bool) {
-       members[__member].isWhitelisted = true;
+      members[__member].isWhitelisted = true;
        return true;
     }
     
     
     function blackListMember(address __member) public OnlyAdminOrOwner returns(bool) {
-       members[__member].isWhitelisted = false;
+      members[__member].isWhitelisted = false;
        return true;
     }
     
     
     function isWhitelisted(address __member) view internal returns(bool) {
-       return  members[__member].isWhitelisted;
+        return  members[__member].isWhitelisted;
     }
     
-    function rateMember(address __membertorate) public IsWhitelisted(__membertorate) returns(bool) {
+    function rateMember(address __membertorate) public  returns(bool) {
         uint8 ratingPoint;
         require(admins[msg.sender] || isWhitelisted(msg.sender), "You're not qualified to rate any member");
+        
         if (admins[msg.sender]) {
-            ratingPoint = 3;
+             ratingPoint = 3;
         } 
-        if (members[__membertorate].rating == 5) {
+        else if (members[__membertorate].rating == 5) {
             ratingPoint = 2;
         } else {
             ratingPoint = 1;
@@ -99,7 +99,7 @@ contract TokenReward {
     }
     
     function calculateReward(uint8 __pointsScored, uint8 __starRating) pure internal returns(uint8, uint8) {
-        if (__pointsScored < 10 ) {
+        if (__pointsScored < 15 ) {
             return (__pointsScored, __starRating);
         }
         uint8 __pointremained = __pointsScored % uint8(15);
@@ -111,7 +111,3 @@ contract TokenReward {
         );
     }
 }
-
-
-
-
