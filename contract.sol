@@ -104,10 +104,11 @@ contract TokenReward {
         return true;
     }
     //This function rewards members
-    function rewardMember(address __memberToReward) public OnlyAdminOrOwner returns(bool) {
+    function rewardMember(address __memberToReward, uint8 __rewardAmount) public OnlyAdminOrOwner returns(bool) {
         require(admins[__memberToReward] == false, "admins cannot be rewarded tokens");
         require(members[__memberToReward].rating >= 3, "member do not have a proven track record");
-        balances[__memberToReward] = balances[__memberToReward] + 2;
+        require(__rewardAmount <= 2, "Not more than 2 tokens can be rewarded");
+        balances[__memberToReward] = balances[__memberToReward] + __rewardAmount;
         return true;
     }
     //This function helps calculate the members' reward base on point scored and star rating
