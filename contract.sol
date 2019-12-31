@@ -7,7 +7,7 @@ contract TokenReward {
         uint8 accumulatedPoints;
         uint8 rating;
     }
-    //Mapping
+    //Mappings
     address owner;//Our state variable
     mapping(address => Member) public members;//each Member has an address
     mapping(address => uint ) public reward;//captures the reward in uint of each address
