@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
  
 
 pragma solidity >=0.5.0 < 0.6.0;
@@ -23,12 +23,24 @@ contract TokenReward {
      *
      * Initializes contract with initial supply tokens to the creator of the contract
      */
-     
-        
+    
+pragma solidity >=0.5.0 < 0.6.0;
+contract TokenReward {
+    
+    struct Member {
+        string name;
+        bool isWhitelisted;
+        uint8 accumulatedPoints;
+        uint8 rating;
+    }
+    //Mappings
+    address owner;//Our state variable
+
     mapping(address => Member) public members;//each Member has an address
     mapping(address => uint ) public reward;//captures the reward in uint of each address
     mapping(address => bool ) public admins;//captures the addresses that are admins or not
     mapping(address => uint ) public balances;//captures the balances in uint of each address
+
     mapping (address => mapping (address => uint256)) public allowance;
     //Events
     event NewMember(string _name);//Trigers when a new name is added
@@ -41,6 +53,13 @@ contract TokenReward {
 
     // This notifies clients about the amount burnt
     event Burn(address indexed from, uint256 value);
+    //Events
+    event NewMember(string _name);//Trigers when a new name is added
+    event Whitelisted(address indexed _member, string _name);
+    event Blacklisted(address indexed _member, string _name);//trigers new blacklisting
+    event NewReward(address indexed _member, uint reward);//trigers new reward and the member
+    event NewRating(address indexed _ratedBy, address indexed _memberRated, uint rating);//trigers new rating
+
     //Modifiers
     modifier OnlyOwner() {
         require(msg.sender == owner, "Only contract owner is allowed to call this function");
@@ -56,11 +75,17 @@ contract TokenReward {
         Member memory  memberStruct = members[__member];//Any member that is whitelisted is now called memberStruct
         require(memberStruct.isWhitelisted == true, "This address is not whitelisted");
         _;//This allows only whitelisted member to make changes
-    }                
+    }              
      modifier onlyOwner {
     require(msg.sender == owner,"only the owner can call this");
    //onlyOwner checks whether the msg.sender is the same as the owner
     _;
+    }
+    
+    constructor () public {//Only the owner of the contract will call this
+        owner = msg.sender;
+        admins[msg.sender] = true;
+
     }
 
     //This function helps to add a new Admin and can be called only by the owner
@@ -81,6 +106,7 @@ contract TokenReward {
     } 
     //This function whitelist a member and can be called only by admins and the owner
     function whiteListMember(address __member) public view OnlyAdminOrOwner returns(bool) {
+
        Member memory  memberStruct = members[__member];
        memberStruct.isWhitelisted = true;
        return true;
@@ -90,6 +116,20 @@ contract TokenReward {
     function blackListMember(address __member) public view OnlyAdminOrOwner returns(bool) {
        Member memory  memberStruct = members[__member];
        memberStruct.isWhitelisted = false;
+       Member storage  memberStruct = members[__member];
+       memberStruct.isWhitelisted = true;
+       
+       emit Whitelisted(__member, memberStruct.name);
+       return true;
+    }
+    
+
+   //This function blacklist a member and can be called only by admins and the owner
+    function blackListMember(address __member) public view OnlyAdminOrOwner returns(bool) {
+       Member storage  memberStruct = members[__member];
+       memberStruct.isWhitelisted = false;
+        
+       emit Blacklisted(__member, memberStruct.name);
        return true;
     }
     
@@ -98,9 +138,15 @@ contract TokenReward {
         Member memory  memberStruct = members[__member];
         return memberStruct.isWhitelisted;
     }
+
     //This function rate a member and can be called by admins,owners,and whitelisted members
     function rateMember(address __membertorate) public IsWhitelisted(__membertorate) returns(bool) {
         Member memory __memberStruct = members[__membertorate];
+
+    //This function rate a member and can be called by whitelisted members
+    function rateMember(address __membertorate) public IsWhitelisted(__membertorate) returns(bool) {
+        Member storage __memberStruct = members[__membertorate];
+
         uint8 ratingPoint;
         require(admins[msg.sender] || isWhitelisted(msg.sender), "You're not qualified to rate any member");
         if (admins[msg.sender]) {
@@ -278,7 +324,7 @@ contract NgDevsforEth is TokenReward {
         return true;
     }
 }
-=======
+
 pragma solidity >=0.5.0 < 0.6.0;
 contract TokenReward {
     
@@ -409,4 +455,3 @@ contract TokenReward {
 
 
 
->>>>>>> 6d60512c227cf4badb15a7835f66e5a62a723ce8
