@@ -1,5 +1,11 @@
 pragma solidity >=0.5.0 < 0.6.0;
+
 contract TokenReward {
+    
+    uint public totalSupply;
+    string public name;
+    string public symbol;
+    uint8 public decimals = 18;
     
     struct Member {
         uint8 rating;
@@ -7,17 +13,28 @@ contract TokenReward {
         bool isWhitelisted;
         uint8 accumulatedPoints;
     }
-    
     address owner;
     mapping(address => Member) public members;
     mapping(address => uint ) public reward;
     mapping(address => bool ) public admins;
     mapping(address => uint ) public balances;
+    mapping(address => mapping(address => uint256)) public allowance;
     
+    event Transfer(address indexed _from, address indexed _to, uint tokens);
+    event Approval(address indexed _tokenOwner, address indexed _spender, uint tokens);
     event NewMember(string _name);
     event Blacklisted(address indexed _member, string _name);
     event NewReward(address indexed _member, uint reward);
     event NewRating(address indexed _ratedBy, address indexed _memberRated, uint rating);
+    
+    constructor(string memory tokenName, string memory tokenSymbol, uint initialSupply) public{
+        owner = msg.sender;
+        admins[msg.sender] = true;
+        totalSupply = initialSupply*10**uint256(decimals);
+        balances[msg.sender] = totalSupply;
+        name = tokenName;
+        symbol = tokenSymbol;
+    }
     
     modifier OnlyOwner() {
         require(msg.sender == owner, "Only contract owner is allowed to call this function");
@@ -33,11 +50,6 @@ contract TokenReward {
         Member memory  memberStruct = members[__member];
         require(memberStruct.isWhitelisted == true, "This address is not whitelisted");
         _;
-    }
-    
-    constructor () public {
-        owner = msg.sender;
-        admins[msg.sender] = true;
     }
     
     function addAdmin(address __newAdmin) public OnlyOwner returns(bool) {
@@ -56,14 +68,14 @@ contract TokenReward {
        return true;
     }
     
-    function whiteListMember(address __member) public OnlyAdminOrOwner returns(bool) {
+    function whiteListMember(address __member) public view OnlyAdminOrOwner returns(bool) {
        Member memory  memberStruct = members[__member];
        memberStruct.isWhitelisted = true;
        return true;
     }
     
     
-    function blackListMember(address __member) public OnlyAdminOrOwner returns(bool) {
+    function blackListMember(address __member) public view OnlyAdminOrOwner returns(bool) {
        Member memory  memberStruct = members[__member];
        memberStruct.isWhitelisted = false;
        return true;
@@ -116,8 +128,33 @@ contract TokenReward {
         return (__pointremained, __starRating
         );
     }
+    
+    function _transfer(address _from, address _to, uint256 _value) internal {
+        require(_to != address(0x0));
+        require(balances[_from] >= _value);
+        require(balances[_to] + _value >= balances[_to]);
+        
+        balances[_from] -= _value;
+        balances[_to] += _value;
+        emit Transfer(_from, _to, _value);
+    }
+    
+    function transfer(address _to, uint256 _value) public returns(bool success){
+        _transfer(msg.sender, _to, _value);
+        return true;
+    }
+    
+    function transferFrom(address _from, address _to, uint256 _value) public returns(bool success){
+        require(_value <= allowance[_from][msg.sender]);
+        allowance[_from][msg.sender] -= _value;
+        _transfer(_from, _to, _value);
+        return true;
+    }
+    
+    function approve(address _spender, uint256 _value) public OnlyAdminOrOwner returns(bool success){
+        allowance[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
+        return true;
+        
+    }
 }
-
-
-
-
