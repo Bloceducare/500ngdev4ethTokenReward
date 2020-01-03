@@ -8,19 +8,6 @@ contract TokenReward {
         uint8 rating;
     }
     //Mappings
-<<<<<<< HEAD
-    address owner;//Our state variable
-    mapping(address => Member) public members;//each Member has an address
-    mapping(address => uint ) public reward;//captures the reward in uint of each address
-    mapping(address => bool ) public admins;//captures the addresses that are admins or not
-    mapping(address => uint ) public balances;//captures the balances in uint of each address
-    //Events
-    event NewMember(string _name);//Trigers when a new name is added
-    event Whitelisted(address indexed _member, string _name);
-    event Blacklisted(address indexed _member, string _name);//trigers new blacklisting
-    event NewReward(address indexed _member, uint reward);//trigers new reward and the member
-    event NewRating(address indexed _ratedBy, address indexed _memberRated, uint rating);//trigers new rating
-=======
     address owner;//declaring state variable owner
     mapping(address => Member) public members;//each Memberis recognised by an address
     mapping(address => uint ) public reward;//captures the reward in uint of each address
@@ -33,7 +20,6 @@ contract TokenReward {
     event NewReward(address indexed _member, uint reward);//Triggers a searchable rewarded member with amount of reward.
     event NewRating(address indexed _ratedBy, address indexed _memberRated, uint rating);//Populates searchable rated member with rating.
 
->>>>>>> upstream/master
     //Modifiers
     modifier OnlyOwner() {
         require(msg.sender == owner, "Only contract owner is allowed to call this function");
@@ -50,69 +36,50 @@ contract TokenReward {
         require(memberStruct.isWhitelisted == true, "This address is not whitelisted");
         _;//This allows only whitelisted member to make changes
     }
-<<<<<<< HEAD
-
-    constructor () public {//Only the owner of the contract will call this
-=======
     //Initializing permissions for both the creator and admins
     constructor () public {
->>>>>>> upstream/master
         owner = msg.sender;
         admins[msg.sender] = true;
     }
 
-<<<<<<< HEAD
-    //This function helps to add a new Admin and can be called only by the owner
-=======
     //This function adds a new Admin and can be called only by the owner
->>>>>>> upstream/master
     function addAdmin(address __newAdmin) public OnlyOwner returns(bool) {
         admins[__newAdmin] = true;
         return true;
     }
 
-<<<<<<< HEAD
-    //This adds a new member and can be called only by admins and the owner
-=======
     //This function adds a new member to the whitelist and emits the event
     //and can be called only by admins and the owner.
->>>>>>> upstream/master
     function AddMember(address __member, string memory __memberName) public OnlyAdminOrOwner returns(bool) {
        Member memory __memberStruct;
        __memberStruct.name = __memberName;
        __memberStruct.isWhitelisted = true;
        members[__member] = __memberStruct;
 
-<<<<<<< HEAD
-       emit NewMember(__memberName);
-       return true;
-    }
-    //This function whitelist a member and can be called only by admins and the owner
-    function whiteListMember(address __member) public view OnlyAdminOrOwner returns(bool) {
-       Member storage  memberStruct = members[__member];
-       memberStruct.isWhitelisted = true;
-
-       emit Whitelisted(__member, memberStruct.name);
-       return true;
-    }
-
-
-   //This function blacklist a member and can be called only by admins and the owner
-    function blackListMember(address __member) public view OnlyAdminOrOwner returns(bool) {
-=======
        emit Whitelisted(__member, __memberStruct.name);
        return true;
     }
 
    //This function blacklist a member and can be called only by admins and the owner
     function blackListMember(address __member) public OnlyAdminOrOwner returns(bool) {
->>>>>>> upstream/master
        Member storage  memberStruct = members[__member];
        memberStruct.isWhitelisted = false;
 
        emit Blacklisted(__member, memberStruct.name);
        return true;
     }
+
+    // This function removes a member from the blacklist and can be called only by admins and the owner
+function formerBlackListMember(address __member ) public OnlyAdminOrOwner returns(bool) {
+
+    Member storage memberStruct = members[__member];
+    memberStruct.isWhitelisted = true;
+
+    emit Whitelisted(__member, memberStruct.name);
+    return true;
+
+}
+
 
    // This function checks if a member is whitelisted or not
     function isWhitelisted(address __member)internal view returns(bool) {
