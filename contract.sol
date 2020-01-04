@@ -125,7 +125,7 @@ contract TokenReward is ExternalStorage  {
      function cRewardMember(address __memberToReward, uint _memberId, uint256 _value) public payable OnlyAdminOrOwner returns (bool success) {
         require(_value != uint256(0));
         require(admins[__memberToReward] == false, "admins cannot be rewarded tokens");
-        //require(members[__memberToReward].rating >= 3, "member do not have a proven track record");
+        require(members[__memberToReward].rating >= 3, "member do not have a proven track record");
         require(members[__memberToReward].memberId == _memberId);
         balanceOf[__memberToReward] = balanceOf[__memberToReward] + _value;
         balanceOf[msg.sender] = balanceOf[msg.sender] - _value;
